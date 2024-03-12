@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -33,33 +32,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dir, err := os.Getwd() // Get the current working directory
+	// remove output file
+	dir, err := os.Getwd()
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 
-	// Target extension to remove
-	extToRemoves := []string{".jpg", ".png", ".jpeg"} // Change this to your desired extension
+	extToRemoves := []string{".png", ".jpg"}
 
-	// Walk through the directory and remove files with the specified extension
 	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
 		for _, extToRemove := range extToRemoves {
 			if !info.IsDir() && filepath.Ext(path) == extToRemove {
 				err := os.Remove(path)
 				if err != nil {
-					return err
+					log.Fatal(err)
 				}
-				fmt.Printf("Deleted: %s\n", path)
 			}
 		}
-
 		return nil
 	})
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Fatal(err)
 	}
 }
