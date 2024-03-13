@@ -38,32 +38,6 @@ func (h *imageHttp) convert(c *fiber.Ctx) error {
 	}
 
 	return c.SendFile(result)
-
-	// tempFile, err := os.CreateTemp("", "input-*.png")
-	// if err != nil {
-	// 	log.Error(err)
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	// }
-	// defer os.Remove(tempFile.Name())
-
-	// if _, err := io.Copy(tempFile, src); err != nil {
-	// 	log.Error(err)
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	// }
-
-	// outputFileName := "output.jpg"
-	// cmd := exec.Command("ffmpeg", "-i", tempFile.Name(), outputFileName)
-
-	// // Capture standard error
-	// var stderr bytes.Buffer
-	// cmd.Stderr = &stderr
-	// err = cmd.Run()
-	// if err != nil {
-	// 	log.Error(stderr.String())
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	// }
-
-	// return c.SendFile(outputFileName)
 }
 
 func (h *imageHttp) resize(c *fiber.Ctx) error {
