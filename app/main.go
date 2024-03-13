@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/situmorangbastian/pixelate/handler"
+	"github.com/situmorangbastian/pixelate/service"
 	"github.com/spf13/viper"
 )
 
@@ -28,9 +29,11 @@ func main() {
 		panic("invalid service port")
 	}
 
+	imageService := service.NewImageService()
+
 	fiberApp := fiber.New()
 
-	handler.InitImageHTTP(fiberApp)
+	handler.InitImageHTTP(fiberApp, imageService)
 
 	// Start server
 	go func() {

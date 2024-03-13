@@ -1,24 +1,21 @@
 package handler
 
 import (
-	"bytes"
-	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/situmorangbastian/pixelate"
 )
 
 type imageHttp struct {
+	imageService pixelate.ImageService
 }
 
-func InitImageHTTP(f *fiber.App) {
-	handler := &imageHttp{}
+func InitImageHTTP(f *fiber.App, imageService pixelate.ImageService) {
+	handler := &imageHttp{imageService}
 
 	f.Post("/convert", handler.convert)
 	f.Post("/resize", handler.resize)
@@ -35,38 +32,38 @@ func (h *imageHttp) convert(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid type file"})
 	}
 
-	src, err := file.Open()
+	result, err := h.imageService.ConvertPngToJpg(file)
 	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer src.Close()
-
-	tempFile, err := os.CreateTemp("", "input-*.png")
-	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer os.Remove(tempFile.Name())
-
-	if _, err := io.Copy(tempFile, src); err != nil {
-		log.Error(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
-	outputFileName := "output.jpg"
-	cmd := exec.Command("ffmpeg", "-i", tempFile.Name(), outputFileName)
+	return c.SendFile(result)
 
-	// Capture standard error
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	err = cmd.Run()
-	if err != nil {
-		log.Error(stderr.String())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
+	// tempFile, err := os.CreateTemp("", "input-*.png")
+	// if err != nil {
+	// 	log.Error(err)
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
+	// }
+	// defer os.Remove(tempFile.Name())
 
-	return c.SendFile(outputFileName)
+	// if _, err := io.Copy(tempFile, src); err != nil {
+	// 	log.Error(err)
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
+	// }
+
+	// outputFileName := "output.jpg"
+	// cmd := exec.Command("ffmpeg", "-i", tempFile.Name(), outputFileName)
+
+	// // Capture standard error
+	// var stderr bytes.Buffer
+	// cmd.Stderr = &stderr
+	// err = cmd.Run()
+	// if err != nil {
+	// 	log.Error(stderr.String())
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
+	// }
+
+	// return c.SendFile(outputFileName)
 }
 
 func (h *imageHttp) resize(c *fiber.Ctx) error {
@@ -97,40 +94,12 @@ func (h *imageHttp) resize(c *fiber.Ctx) error {
 		})
 	}
 
-	src, err := file.Open()
+	result, err := h.imageService.Resize(file, scale)
 	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer src.Close()
-
-	tempFile, err := os.CreateTemp("", "input-*"+filepath.Ext(file.Filename))
-	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer os.Remove(tempFile.Name())
-
-	if _, err := io.Copy(tempFile, src); err != nil {
-		log.Error(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
-	ext := filepath.Ext(file.Filename)
-
-	outputFileName := "resized" + ext
-	cmd := exec.Command("ffmpeg", "-i", tempFile.Name(), "-vf", fmt.Sprintf("scale=%s", scale), outputFileName)
-
-	// Capture standard error
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	err = cmd.Run()
-	if err != nil {
-		log.Error(stderr.String())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-
-	return c.SendFile(outputFileName)
+	return c.SendFile(result)
 }
 
 func (h *imageHttp) compress(c *fiber.Ctx) error {
@@ -140,38 +109,11 @@ func (h *imageHttp) compress(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	src, err := file.Open()
+
+	result, err := h.imageService.Compress(file)
 	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer src.Close()
-
-	tempFile, err := os.CreateTemp("", "input-*"+filepath.Ext(file.Filename))
-	if err != nil {
-		log.Error(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-	defer os.Remove(tempFile.Name())
-
-	if _, err := io.Copy(tempFile, src); err != nil {
-		log.Error(err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
-	ext := filepath.Ext(file.Filename)
-
-	outputFileName := "compressed" + ext
-	cmd := exec.Command("ffmpeg", "-i", tempFile.Name(), "-vf", "-crf", "23", outputFileName)
-
-	// Capture standard error
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	err = cmd.Run()
-	if err != nil {
-		log.Error(stderr.String())
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
-	}
-
-	return c.SendFile(outputFileName)
+	return c.SendFile(result)
 }
