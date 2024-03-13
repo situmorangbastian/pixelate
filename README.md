@@ -22,7 +22,7 @@ sudo apt-get install ffmpeg
 brew install ffmpeg
 
 # On Windows
-# Download ffmpeg from [official website](https://ffmpeg.org/download.html)
+# Download ffmpeg from https://www.ffmpeg.org/download.html#build-windows
 # Add ffmpeg to the system PATH
 ```
 
