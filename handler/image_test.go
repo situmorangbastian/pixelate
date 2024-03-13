@@ -3,9 +3,11 @@ package handler_test
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +24,30 @@ type funcCall struct {
 	Output []interface{}
 }
 
+// setup function to be executed before running tests
+func setup() {
+	// create a folder tmp
+	err := os.Mkdir("./tmp", os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		panic(fmt.Errorf("error create folder tmp: %w", err))
+	}
+}
+
+// teardown function to be executed after running tests
+func teardown() {
+	if err := os.RemoveAll("tmp"); err != nil {
+		panic(fmt.Errorf("error delete folder tmp: %w", err))
+	}
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	m.Run()
+	teardown()
+}
+
 func TestImageHandler_Convert(t *testing.T) {
+
 	tests := []struct {
 		testName               string
 		expectedError          bool

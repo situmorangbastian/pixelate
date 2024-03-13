@@ -16,12 +16,18 @@ import (
 )
 
 func main() {
+	// create a folder tmp
+	err := os.Mkdir("tmp", os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		panic(fmt.Errorf("error create folder tmp: %w", err))
+	}
+
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetConfigType("toml")
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("error config file: %w", err))
 	}
 
 	servicePort := viper.GetInt("service.port")
@@ -75,5 +81,9 @@ func main() {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if err := os.RemoveAll("tmp"); err != nil {
+		panic(fmt.Errorf("error delete folder tmp: %w", err))
 	}
 }

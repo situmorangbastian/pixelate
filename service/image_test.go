@@ -53,7 +53,7 @@ func TestConvertPngToJpg(t *testing.T) {
 				fileHeader.Filename = test.invalidFileName
 			}
 
-			fileName, err := service.ConvertPngToJpg(fileHeader)
+			fileName, err := service.ConvertPngToJpg(fileHeader.Filename)
 			if test.expectedError {
 				require.Error(t, err)
 				return
@@ -104,7 +104,7 @@ func TestResize(t *testing.T) {
 				fileHeader.Filename = test.invalidFileName
 			}
 
-			fileName, err := service.Resize(fileHeader, "10:10")
+			fileName, err := service.Resize(fileHeader.Filename, "10:10")
 			if test.expectedError {
 				require.Error(t, err)
 				return
@@ -155,7 +155,7 @@ func TestCompress(t *testing.T) {
 				fileHeader.Filename = test.invalidFileName
 			}
 
-			fileName, err := service.Compress(fileHeader)
+			fileName, err := service.Compress(fileHeader.Filename)
 			if test.expectedError {
 				require.Error(t, err)
 				return
