@@ -79,3 +79,20 @@ curl -X POST \
 curl -X POST \
   -F "image=example.jpg" \
   https://{host}:{port}/compress
+```
+
+## Running
+
+To start the API, run
+
+```bash
+make run
+```
+
+## Unit Tests
+
+To start unit test, run
+
+```bash
+make test
+```
