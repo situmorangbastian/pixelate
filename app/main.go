@@ -1,24 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/situmorangbastian/pixelate/handler"
+	"github.com/spf13/viper"
 )
 
 func main() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("toml")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	servicePort := viper.GetInt("service.port")
+	if servicePort <= 0 {
+		panic("invalid service port")
+	}
+
 	fiberApp := fiber.New()
 
 	handler.InitImageHTTP(fiberApp)
 
 	// Start server
 	go func() {
-		if err := fiberApp.Listen(":1111"); err != nil {
+		if err := fiberApp.Listen(fmt.Sprintf(":%s", strconv.Itoa(servicePort))); err != nil {
 			log.Info("shutting down the server")
 		}
 	}()
