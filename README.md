@@ -89,6 +89,12 @@ To start the API, run
 make run
 ```
 
+To start the API with docker, run
+
+```bash
+make docker-run
+```
+
 ## Unit Tests
 
 To start unit test, run
