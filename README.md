@@ -22,7 +22,7 @@ sudo apt-get install ffmpeg
 brew install ffmpeg
 
 # On Windows
-# Download ffmpeg from https://www.ffmpeg.org/download.html#build-windows
+# Download ffmpeg from http://www.ffmpeg.org/download.html#build-windows
 # Add ffmpeg to the system PATH
 ```
 
@@ -42,7 +42,7 @@ brew install ffmpeg
 ```bash
 curl -X POST \
   -F "image=example.jpg" \
-  https://{host}:{port}/convert
+  http://{host}:{port}/convert
 ```
 
 ### Resize
@@ -61,7 +61,7 @@ curl -X POST \
 curl -X POST \
   -F "image=example.jpg" \
   -F "scale=640:640" \
-  https://{host}:{port}/resize
+  http://{host}:{port}/resize
 ```
 
 ### Compress
@@ -78,7 +78,7 @@ curl -X POST \
 ```bash
 curl -X POST \
   -F "image=example.jpg" \
-  https://{host}:{port}/compress
+  http://{host}:{port}/compress
 ```
 
 ## Running
